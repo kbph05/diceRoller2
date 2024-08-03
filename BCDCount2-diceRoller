@@ -1,0 +1,157 @@
+Library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity BCDCount2 is
+port (clear, enable, clock : in std_logic;
+		bcd0, bcd1, bcd2, bcd3, bcd4, bcd5, bcd6, bcd7 : out std_logic_vector(3 downto 0)
+		);
+end BCDCount2;
+
+
+architecture func of BCDCount2 is
+
+	component Count4 is
+		port (d : in std_logic_vector(3 downto 0);
+				enable, load, clock : in std_logic;
+				q : out std_logic_vector(3 downto 0)
+				);
+	end component;
+	
+	 signal andGate, orGate : std_logic_vector(7 downto 0) := (others => '0');
+    signal q0, q1, q2, q3, q4, q5, q6, q7 : std_logic_vector(3 downto 0) := (others => '0');
+    signal count : integer range 0 to 6 := 0;
+	
+begin
+	process(clock)
+		 begin
+			  if rising_edge(clock) then
+					if enable = '1' then
+						 if count = 6 then
+							  count <= 0;
+						 else
+							  count <= count + 1;
+						 end if;
+					end if;
+			  end if;
+		 end process;
+	 -- Assign count to BCD outputs
+    bcd0 <= std_logic_vector(to_unsigned(count, 4));
+    bcd1 <= std_logic_vector(to_unsigned(count, 4));
+    bcd2 <= std_logic_vector(to_unsigned(count, 4));
+    bcd3 <= std_logic_vector(to_unsigned(count, 4));
+    bcd4 <= std_logic_vector(to_unsigned(count, 4));
+    bcd5 <= std_logic_vector(to_unsigned(count, 4));
+    bcd6 <= std_logic_vector(to_unsigned(count, 4));
+    bcd7 <= std_logic_vector(to_unsigned(count, 4));
+
+end func;
+	
+----	orGate(0) <= andGate(0) or clear;
+----	andGate(0) <= q0(0) and q0(3);
+----	
+----	orGate(1) <= andGate(1) or clear;
+----	andGate(1) <= q1(0) and q1(3) and andGate(0);
+----	
+----	orGate(2) <= andGate(2) or clear;
+----	andGate(2) <= q2(0) and q2(3) and andGate(1);
+----	
+----	orGate(3) <= andGate(3) or clear;
+----	andGate(3) <= q3(0) and q3(3) and andGate(2);
+----	
+----	orGate(4) <= andGate(4) or clear;
+----	andGate(4) <= q4(0) and q4(3) and andGate(3);
+----	
+----	orGate(5) <= andGate(5) or clear;
+----	andGate(5) <= q5(0) and q5(3) and andGate(4);
+----	
+----	orGate(6) <= andGate(6) or clear;
+----	andGate(6) <= q6(0) and q6(3) and andGate(5);
+----	
+----	orGate(7) <= andGate(7) or clear;
+----	andGate(7) <= q7(0) and q7(3) and andGate(6);
+--	
+--	
+--	decoder1 : Count4 
+--	port map (
+--		q => q0,
+--		d => (others => '0'),
+--		load => orGate(0),
+--		clock => clock,
+--		enable => enable
+--	);
+--	
+--	decoder2 : Count4 
+--	port map (
+--		q => q1,
+--		d => (others => '0'),
+--		load => orGate(1),
+--		clock => clock,
+--		enable => andGate(0)
+--	);	
+--	
+--	decoder3 : Count4 
+--	port map (
+--		q => q2,
+--		d => (others => '0'),
+--		load => orGate(2),
+--		clock => clock,
+--		enable => andGate(1)
+--	);
+--	
+--	decoder4 : Count4 
+--	port map (
+--		q => q3,
+--		d => (others => '0'),
+--		load => orGate(3),
+--		clock => clock,
+--		enable => andGate(2)
+--	);	
+--	
+--	decoder5 : Count4 
+--	port map (
+--		q => q4,
+--		d => (others => '0'),
+--		load => orGate(4),
+--		clock => clock,
+--		enable => andGate(3)
+--	);
+--	
+--	decoder6 : Count4 
+--	port map (
+--		q => q5,
+--		d => (others => '0'),
+--		load => orGate(5),
+--		clock => clock,
+--		enable => andGate(4)
+--	);
+--	
+--	decoder7 : Count4 
+--	port map (
+--		q => q6,
+--		d => (others => '0'),
+--		load => orGate(6),
+--		clock => clock,
+--		enable => andGate(5)
+--	);
+--	
+--	decoder8 : Count4 
+--	port map (
+--		q => q7,
+--		d => (others => '0'),
+--		load => orGate(7),
+--		clock => clock,
+--		enable => andGate(6)
+--	);	
+--	
+--	
+--	bcd0 <= q0;
+--	bcd1 <= q1;
+--	bcd2 <= q2;
+--	bcd3 <= q3;
+--	bcd4 <= q4;
+--	bcd5 <= q5;
+--	bcd6 <= q6;
+--	bcd7 <= q7;
+--	
+--end func;
