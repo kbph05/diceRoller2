@@ -1,0 +1,128 @@
+Library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity TestReaction is
+port (clock_50 : in std_logic;
+		SW : in std_logic_vector(17 downto 0);
+		KEY : in std_logic_vector(3 downto 0);
+		LEDR : out std_logic_vector(17 downto 0);
+		HEX0, HEX1 : out std_logic_vector(6 downto 0)
+		);
+end TestReaction;
+
+
+
+architecture func of TestReaction is
+component SegDecoder is
+	Port (
+			  D : in  std_logic_vector (3 downto 0);
+			  Y : out std_logic_vector (6 downto 0)
+		 );
+end component;
+
+component BCDCount2 is
+	port (clear, enable, clock: in std_logic;
+			BCD0, BCD1 : out std_logic_vector(3 downto 0)
+			);
+end component;
+
+component PreScale is
+	port (clockIn : in std_logic;
+			clockOut : out std_logic
+			);
+end component;
+
+signal andGate, clockOut, mux, w, reset, q : std_logic;
+signal BCD0, BCD1 : std_logic_vector(3 downto 0) := (others => '0');
+
+begin
+	
+	process(clock_50)
+	begin	
+		if rising_edge(clock_50) then
+			q <= andGate;
+		end if;
+	
+	if w = '1' then
+		mux <= '1';
+	else 
+		mux <= q;
+	end if;
+	
+	end process;
+
+	w <= SW(0);
+	reset <= not KEY(1);
+	andGate <= mux and not KEY(2);
+	LEDR(0) <= not q;
+		
+	
+-- BCDCOUNT2 PORT MAPS	
+	BCD_count : BCDCount2
+	port map(
+		clear => reset,
+		enable => q,
+		clock => clockOut,
+		bcd0 => BCD0,
+		bcd1 => BCD1
+	);
+	
+-- preScale port maps
+	pre_scale : preScale
+	port map(
+		clockIn => clock_50,
+		clockOut => clockOut
+	);
+
+-- SEGDECODER PORT MAPS
+	segDec0 : SegDecoder
+	port map(
+		D => BCD0,
+		Y => HEX0
+	);
+		
+	segDec1 : SegDecoder
+	port map(
+		D => BCD1,
+		Y => HEX1
+	);
+
+	segDec2 : SegDecoder
+	port map(
+		D => BCD2,
+		Y => HEX2
+	);
+
+	segDec3 : SegDecoder
+	port map(
+		D => BCD3,
+		Y => HEX3
+	);
+
+	segDec4 : SegDecoder
+	port map(
+		D => BCD4,
+		Y => HEX4
+	);
+
+	segDec5 : SegDecoder
+	port map(
+		D => BCD5,
+		Y => HEX5
+	);
+
+	segDec6 : SegDecoder
+	port map(
+		D => BCD6,
+		Y => HEX6
+	);
+
+	segDec7 : SegDecoder
+	port map(
+		D => BCD7,
+		Y => HEX7
+	);
+
+	
+end func;
