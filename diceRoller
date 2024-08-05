@@ -16,7 +16,7 @@ end diceRoller;
 architecture func of TestReaction is
 
 	-- COMPONENTS --
-	component SegDecoder is
+	component diceRoller is
 		Port (
 				  D : in  std_logic_vector (3 downto 0);
 				  enable : in std_logic;
