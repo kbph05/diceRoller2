@@ -2,7 +2,7 @@ Library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
---rand_num checks reset conditions, assigns a random value to random_value. initialize is negation of pause_int, which comes from
+--rand_num checks reset conditions, assigns a random value to random_value. pause is negation of pause_int, which comes from
 -- tigger, which check down_count_logic conditions. Add is initialize, but unsigned.
 
 entity rand_num is
