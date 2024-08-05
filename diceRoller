@@ -1,0 +1,219 @@
+-- Top level entity
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity diceRoller is
+    port (
+        clock_50 : in std_logic;
+        SW : in std_logic_vector(17 downto 0);
+        KEY : in std_logic_vector(3 downto 0);
+        LEDR : out std_logic_vector(17 downto 0);
+        HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, HEX6, HEX7 : out std_logic_vector(6 downto 0)
+    );
+end diceRoller;
+
+architecture func of diceRoller is
+
+	-- COMPONENTS --
+	component SegDecoder is
+		Port (
+				  D : in  std_logic_vector (3 downto 0);
+				  enable : out std_logic;
+				  Y : out std_logic_vector (6 downto 0)
+			 );
+	end component;
+
+	component PreScale is
+		port (clockIn : in std_logic;
+				clockOut : out std_logic
+				);
+	end component;
+
+	component PreScale_1 is
+		port (clockIn : in std_logic;
+				clockOut : out std_logic
+				);
+	end component;
+
+	component PreScale_2 is
+		port (clockIn : in std_logic;
+				clockOut : out std_logic
+				);
+	end component;
+
+	component PreScale_3 is
+		port (clockIn : in std_logic;
+				clockOut : out std_logic
+				);
+	end component;
+
+	component PreScale_4 is
+		port (clockIn : in std_logic;
+				clockOut : out std_logic
+				);
+	end component;
+		 
+	component adder is
+		port (add_clock, display_clock, pause, reset : in std_logic;
+				add_amount_top : in std_logic_vector(6 downto 0);
+				output : out std_logic_vector(2 downto 0)
+				);
+	end component;
+
+	component numOfSides is
+	port( input : in std_logic_vector(6 downto 0);
+			output : out std_logic_vector(3 downto 0)
+			);
+	end component;
+
+	component numOfDice is
+	port( input : in std_logic_vector(3 downto 0);
+			output : out std_logic_vector(3 downto 0)
+			);
+	end component;
+
+
+	-- SIGNALS --
+	signal enable_hex : std_logic_vector(3 downto 0);
+	signal addUpTo, num_sides, num_dice : std_logic_vector(6 downto 0);
+	signal output1, output2, output3, output4 : std_logic_vector(2 downto 0);
+	signal main_clk, clk, clk2, clk3, clk4 : std_logic;
+	signal hex_out1, hex_out2, hex_out3, hex_out4, hex_num, roll_num : std_logic_vector(3 downto 0);
+	--signal BCD0, BCD1, BCD2, BCD3, BCD4, BCD5, BCD6, BCD7 : std_logic_vector(3 downto 0) := (others => '0');
+
+	begin
+
+	process is
+	begin
+		wait until KEY(3)'event and KEY(3) = '0';
+		enable_hex <= SW(17 downto 14);
+	end process;
+		
+	process is
+	begin
+		wait until KEY(2)'event and KEY(2) = '0';
+		addUpTo <= SW(6 downto 0);
+	end process;
+
+	 
+-- PORT MAPS--	 
+	
+	-- PreScale PORT MAPS
+	
+	preScale0 : PreScale port map(
+		clockIn => clock_50,
+		clockOut => main_clk
+	);
+	preScale2 : PreScale_1 port map(
+		clockIn => clock_50,
+		clockOut => clk
+	);
+	preScale3 : PreScale_2 port map(
+		clockIn => clock_50,
+		clockOut => clk2
+	);
+	preScale4 : PreScale_3 port map(
+		clockIn => clock_50,
+		clockOut => clk3
+	);
+	preScale5 : PreScale_4 port map(
+		clockIn => clock_50,
+		clockOut => clk4
+	);
+
+	
+    -- adder PORT MAPS
+	 
+	adder0 : adder port map(
+		add_clock => clk,
+		display_clock => main_clk,
+		pause => not KEY(0),
+		reset => not KEY(1),
+		add_amount_top => addUpTo
+	);
+	adder1 : adder port map(
+		add_clock => clk2,
+		display_clock => main_clk,
+		pause => not KEY(0),
+		reset => not KEY(1),
+		add_amount_top => addUpTo
+	);
+	adder2 : adder port map(
+		add_clock => clk3,
+		display_clock => main_clk,
+		pause => not KEY(0),
+		reset => not KEY(1),
+		add_amount_top => addUpTo
+	);
+	adder3 : adder port map(
+		add_clock => clk4,
+		display_clock => main_clk,
+		pause => not KEY(0),
+		reset => not KEY(1),
+		add_amount_top => addUpTo
+	);
+ 
+
+    
+	 -- numOfSide/ numOfDice port maps
+	 num_of_sides : numOfSides port map(
+		input => addUpTo,
+		output => roll_num
+		);
+	 num_of_dice : numOfDice port map(
+		input => enable_hex,
+		output => hex_num
+		);
+		
+	 -- SEGDECODER PORT MAPS port maps
+	 
+	 segDec0 : segDecoder port map(
+		D => hex_out1,
+		Y => HEX0,
+		enable => enable_hex(0)
+		);
+	 segDec1 : segDecoder port map(
+		D => hex_out2,
+		Y => HEX1,
+		enable => enable_hex(1)
+		);
+	 segDec2 : segDecoder port map(
+		D => hex_out3,
+		Y => HEX2,
+		enable => enable_hex(2)
+		);
+	 segDec3 : segDecoder port map(
+		D => hex_out4,
+		Y => HEX3,
+		enable => enable_hex(3)
+		);
+	 segDec4 : segDecoder port map(
+		D => dice_num,
+		Y => HEX4,
+		enable => '1'
+		);
+	 segDec6 : segDecoder port map(
+		D => side_num,
+		Y => HEX6,
+		enable => '1'
+		);
+	 
+	
+	 
+	 -- h outputs
+	 
+	 hex_out1 <= (0 => '0', 1 => output1(2),  2 => output1(1),  3 => output1(0));
+	 hex_out2 <= (0 => '0', 1 => output2(2),  2 => output2(1),  3 => output2(0));
+	 hex_out3 <= (0 => '0', 1 => output3(2),  2 => output3(1),  3 => output3(0));
+	 hex_out4 <= (0 => '0', 1 => output4(2),  2 => output4(1),  3 => output4(0));
+	 
+	 LEDR <= enable_hex;
+	 LEDG <= addUpTo;
+
+	 num_sides <= (0 => '0', 1 => '1', 2 => '0', 3 => '0', 4 => '1', 5 => '0', 6 => '0');
+	 num_dice <= (0 => '1', 1 => '1', 2 => '1', 3 => '1', 4 => '0', 5 => '1', 6 => '0');
+	 
+	
+end func;
