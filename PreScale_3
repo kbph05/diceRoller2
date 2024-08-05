@@ -13,17 +13,17 @@ end PreScale_3;
 
 architecture func of PreScale_3 is
 
-signal counter : unsigned(25 downto 0) := (others => '0'); -- counter is inside (internal signal)
+signal counter : unsigned(18 downto 0) := (others => '0'); -- counter is inside (internal signal)
 begin
 
 process (counter, clockIn)
 begin
  
 if rising_edge(clockIn) -- check for rising edge
-		then counter <= counter + 5; -- add 1 to counter
+		then counter <= counter + 2; -- add 1 to counter
 end if;
 	end process;
 	
-	clockOut <= counter(25); -- MSB becomnes output
+	clockOut <= counter(18); -- MSB becomnes output
 
 end func;	
