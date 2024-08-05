@@ -2,21 +2,20 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity diceRoller is
+entity TestReaction is
     port (
         clock_50 : in std_logic;
         SW : in std_logic_vector(17 downto 0);
         KEY : in std_logic_vector(3 downto 0);
-        LEDR : out std_logic_vector(17 downto 14);
-	LEDG : out std_logic_vector(6 downto 0);
+        LEDR : out std_logic_vector(17 downto 0);
         HEX0, HEX1, HEX2, HEX3, HEX4, HEX6 : out std_logic_vector(6 downto 0)
     );
-end diceRoller;
+end TestReaction;
 
-architecture func of diceRoller is
+architecture func of TestReaction is
 
 	-- COMPONENTS --
-	component diceRoller is
+	component SegDecoder is
 		Port (
 				  D : in  std_logic_vector (3 downto 0);
 				  enable : in std_logic;
@@ -55,7 +54,7 @@ architecture func of diceRoller is
 	end component;
 		 
 	component adder is
-		port (add_clock, display_clock, pause, reset : in std_logic;
+		port (add_clock, display_clock, initialize, reset : in std_logic;
 				add_amount_top : in std_logic_vector(6 downto 0);
 				output : out std_logic_vector(2 downto 0)
 				);
@@ -63,28 +62,28 @@ architecture func of diceRoller is
 
 	component numOfSides is
 	port(
-        D : in  std_logic_vector (6 downto 0);  -- 4-bit input for digits 0-F
+        D : in  std_logic_vector (6 downto 0); 
 		  enable : in std_logic;
-        Y : out std_logic_vector (6 downto 0)   -- 7-segment display output
+        Y : out std_logic_vector (6 downto 0)   
     );
 	end component;
 
 
 	component numOfDice is
 	port(
-        D : in  std_logic_vector (3 downto 0);  -- 4-bit input for digits 0-F
+        D : in  std_logic_vector (3 downto 0);
 		  enable : in std_logic;
-        Y : out std_logic_vector (6 downto 0)   -- 7-segment display output
+        Y : out std_logic_vector (6 downto 0)   
     );
 	end component;
 
 
 	-- SIGNALS --
 	signal enable_hex : std_logic_vector(3 downto 0);
-	signal addUpTo : std_logic_vector(6 downto 0);
+	signal side_count : std_logic_vector(6 downto 0);
 	signal output1, output2, output3, output4 : std_logic_vector(2 downto 0);
 	signal main_clk, clk, clk2, clk3, clk4 : std_logic;
-	signal hex_out1, hex_out2, hex_out3, hex_out4 : std_logic_vector(3 downto 0) := "0000";
+	signal hex_out1, hex_out2, hex_out3, hex_out4 : std_logic_vector(3 downto 0)  := (others => '0');
 	signal dice_num : std_logic_vector(3 downto 0);
 	signal side_num : std_logic_vector(6 downto 0);
 
@@ -94,13 +93,14 @@ architecture func of diceRoller is
 	begin
 		wait until KEY(3)'event and KEY(3) = '0';
 		enable_hex <= SW(17 downto 14);
+		side_count <= SW(6 downto 0);
 	end process;
 		
-	process is
-	begin
-		wait until KEY(2)'event and KEY(2) = '0';
-		addUpTo <= SW(6 downto 0);
-	end process;
+--	process is
+--	begin
+--		wait until KEY(2)'event and KEY(2) = '0';
+--		side_count <= SW(6 downto 0);
+--	end process;
 
 	 
 -- PORT MAPS--	 
@@ -134,40 +134,41 @@ architecture func of diceRoller is
 	adder0 : adder port map(
 		add_clock => clk,
 		display_clock => main_clk,
-		pause => KEY(0),
+		initialize => not KEY(0),
 		reset => not KEY(1),
-		add_amount_top => addUpTo,
+		add_amount_top => side_count,
 		output => output1
 	);
 	adder1 : adder port map(
 		add_clock => clk2,
 		display_clock => main_clk,
-		pause => KEY(0),
+		initialize => not KEY(0),
 		reset => not KEY(1),
-		add_amount_top => addUpTo,
+		add_amount_top => side_count,
 		output => output2
 	);
 	adder2 : adder port map(
 		add_clock => clk3,
 		display_clock => main_clk,
-		pause => KEY(0),
+		initialize => not KEY(0),
 		reset => not KEY(1),
-		add_amount_top => addUpTo,
+		add_amount_top => side_count,
 		output => output3
 	);
 	adder3 : adder port map(
 		add_clock => clk4,
 		display_clock => main_clk,
-		pause => KEY(0),
+		initialize => not KEY(0),
 		reset => not KEY(1),
-		add_amount_top => addUpTo,
+		add_amount_top => side_count,
 		output => output4
 	);
  -- output is the random value
 	
 		dice_num <= enable_hex;
-		side_num <= addUpTo;
-	 -- SEGDECODER PORT MAPS port maps
+		side_num <= side_count;
+	 
+	-- SEGDECODER port maps
 	 
 	 segDec0 : segDecoder port map(
 		D => hex_out1,
@@ -177,17 +178,17 @@ architecture func of diceRoller is
 	 segDec1 : segDecoder port map(
 		D => hex_out2,
 		Y => HEX1,
-		enable => (enable_hex(1) and enable_hex(0))
+		enable => enable_hex(1)
 		);
 	 segDec2 : segDecoder port map(
 		D => hex_out3,
 		Y => HEX2,
-		enable => (enable_hex(2) and enable_hex(1) and enable_hex(0))
+		enable => enable_hex(2)
 		);
 	 segDec3 : segDecoder port map(
 		D => hex_out4,
 		Y => HEX3,
-		enable => (enable_hex(3) and enable_hex(2) and enable_hex(1) and enable_hex(0))
+		enable => enable_hex(3)
 		);
 	 segDec4 : numOfSides port map(
 		D => side_num,
@@ -200,8 +201,6 @@ architecture func of diceRoller is
 		enable => '1'
 		);
 	 
-	
-	 
 	 -- hex outputs
 	 
 	 hex_out1 <= (0 => '1', 1 => output1(2),  2 => output1(1),  3 => output1(0));
@@ -209,11 +208,7 @@ architecture func of diceRoller is
 	 hex_out3 <= (0 => '1', 1 => output3(2),  2 => output3(1),  3 => output3(0));
 	 hex_out4 <= (0 => '1', 1 => output4(2),  2 => output4(1),  3 => output4(0));
 	 
-	 LEDR <= enable_hex;
-	 LEDG <= addUpTo;
-
---	 num_sides HEX5 <= (0 => '0', 1 => '1', 2 => '0', 3 => '0', 4 => '1', 5 => '0', 6 => '0');
---	 num_dice HEX7 <= (0 => '1', 1 => '1', 2 => '1', 3 => '1', 4 => '0', 5 => '1', 6 => '0');
-	 
+	 LEDR(17 downto 14) <= enable_hex;
+	 LEDR(6 downto 0) <= side_count;
 	
 end func;
