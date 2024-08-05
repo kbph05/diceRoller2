@@ -1,0 +1,44 @@
+Library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity rand_num is
+port (add_amount : in std_logic_vector(6 downto 0);
+		pause_int, reset_int, clock : in std_logic;
+		random_value : out std_logic_vector(2 downto 0)
+		);
+end rand_num;
+
+architecture func of rand_num is
+
+	signal state : unsigned(2 downto 0) := "000";
+	signal state_logic : std_logic_vector(2 downto 0);
+	signal reset : std_logic;
+	signal add : unsigned(0 downto 0);
+	signal pause : std_logic;
+	
+	begin
+	
+	state_logic <= std_logic_vector(state);
+--	reset <= (0 => (not (reset_int or ((add_amount(6) and state_logic(2) and state_logic(1)) 
+--	or (add_amount(5) and state_logic(2) or state_logic(1)) 
+--	or (add_amount(3) and state_logic(1) or state_logic(1)) 
+--	or (add_amount(1) and state_logic(0) or state_logic(1)) or add_amount(0)))));
+	
+	reset <= not (reset_int or ((add_amount(6) and state_logic(2) and state_logic(1)) or
+										 (add_amount(5) and (state_logic(2) or state_logic(1))) or
+										 (add_amount(3) and (state_logic(1) or state_logic(0))) or
+										 (add_amount(1) and (state_logic(0) or state_logic(1))) or
+										  add_amount(0)));
+	
+	random <= std_logic_vector(resize(state + '1', 3));
+	pause <= (0 => (pause_int));
+	add <= unsigned(pause);
+	
+	process is
+	begin
+		wait until clk'event and clk = '1';
+		state <= resize((state + add)*(unsigned(reset)), 3);
+	end process;
+	
+end func;
