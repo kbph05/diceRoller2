@@ -13,7 +13,7 @@ entity diceRoller is
     );
 end diceRoller;
 
-architecture func of TestReaction is
+architecture func of diceRoller is
 
 	-- COMPONENTS --
 	component diceRoller is
