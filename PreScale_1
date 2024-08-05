@@ -20,10 +20,10 @@ process (counter, clockIn)
 begin
  
 if rising_edge(clockIn) -- check for rising edge
-		then counter <= counter + 3; -- add 1 to counter
+		then counter <= counter + 2; -- add 1 to counter
 end if;
 	end process;
 	
 	clockOut <= counter(21); -- MSB becomnes output
 
-end func;			
+end func;					
