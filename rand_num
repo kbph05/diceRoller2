@@ -2,7 +2,7 @@ Library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
---add_var checks reset conditions, assigns a random value to random_value. Pause is negation of pause_int, which comes from
+--rand_num checks reset conditions, assigns a random value to random_value. Pause is negation of pause_int, which comes from
 -- pause_tigger, which check down_count_logic conditions. Add is pause, but unsigned.
 
 entity rand_num is
