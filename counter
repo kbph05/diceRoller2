@@ -2,14 +2,14 @@ Library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity adder is
+entity counter is
 port (add_clock, display_clock, initialize, reset : in std_logic;
 		add_amount_top : in std_logic_vector(6 downto 0);
 		output : out std_logic_vector(2 downto 0)
 		);
-end adder;
+end counter;
 
-architecture func of adder is
+architecture func of counter is
 
 	component add_var is 
 		port (add_amount : in std_logic_vector(6 downto 0);
