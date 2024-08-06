@@ -2,8 +2,8 @@ Library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
---rand_num checks reset conditions, assigns a random value to random_value. pause is negation of pause_int, which comes from
--- tigger, which check down_count_logic conditions. Add is initialize, but unsigned.
+--add_var checks reset conditions, assigns a random value to random_value. Pause is negation of pause_int, which comes from
+-- pause_tigger, which check down_count_logic conditions. Add is pause, but unsigned.
 
 entity rand_num is
 port (add_amount : in std_logic_vector(6 downto 0);
@@ -24,13 +24,14 @@ architecture func of rand_num is
 	
 	state_logic <= std_logic_vector(state);
 	reset <= (0 => (not 
-		(reset_int or ( (add_amount(6) and state_logic(2) and state_logic(1))
+		(reset_int or ( 
+		(add_amount(6) and state_logic(2) and state_logic(1))
 	or (add_amount(5) and state_logic(2) and state_logic(1)) or (add_amount(0) and state_logic(2))
 	or (add_amount(3) and state_logic(1) and state_logic(1)) or (add_amount(0) and state_logic(1))
 	or (add_amount(1) and state_logic(0) and state_logic(1)) or add_amount(0)))));
 	
 	
-	random_value <= std_logic_vector(resize(state + "1", 3));
+	random_value <= std_logic_vector(resize(state, 3));
 	pause <= (0 => (pause_int));
 	add <= unsigned(pause);
 	
